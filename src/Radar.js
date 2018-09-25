@@ -86,7 +86,7 @@ export default class RadarChart extends Component {
     const self = this;
     const colors = styleSvg({}, self.props.options);
     const colorsFill = self.props.options.fill;
-    const curves = chart.curves.map(function(c, i) {
+    const curves = chart.curves.map(function (c, i) {
       const color = colorsFill instanceof Array ? colorsFill[i] : colorsFill;
       return (
         <Path
@@ -99,28 +99,27 @@ export default class RadarChart extends Component {
     });
 
     const length = chart.rings.length;
-    const rings = chart.rings.map(function(r, i) {
-      if (i !== length - 1) {
-        return (
-          <Path
-            key={"rings" + i}
-            d={r.path.print()}
-            stroke={colors.stroke}
-            strokeOpacity={colors.strokeOpacity}
-            fill="none"
-          />
-        );
-      }
-    });
+    const radiusSection = x / length;
+
+    const rings = []
+    for (let i = 1; i < length; i++) {
+      rings.push(<Circle
+        key={"rings" + i}
+        cx={center[0]}
+        cy={center[1]}
+        r={radiusSection * i}
+        stroke={options.stroke}
+        strokeWidth={options.label.circleStrokeWidth}
+        fill={'transparent'}
+      />)
+    }
 
     const textStyle = fontAdapt(options.label);
 
-    const labels = chart.rings[length - 1].path.points().map(function(p, i) {
+    const labels = chart.rings[length - 1].path.points().map(function (p, i) {
       function onLabelPress() {
         textStyle.onLabelPress(keys[i], keys_value[`${keys[i]}`]);
       }
-
-      console.log("options", options.label.circle);
 
       return (
         <G key={"label" + i}>
