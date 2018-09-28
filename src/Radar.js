@@ -17,8 +17,8 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import React, { Component } from "react";
-import { Text as ReactText } from "react-native";
-import Svg, { G, Path, Line, Text, Circle } from "react-native-svg";
+import { Text as ReactText, TouchableOpacity, View } from "react-native";
+import Svg, { G, Path, Line, Text, Circle, Rect } from "react-native-svg";
 import { Options, identity, styleSvg, fontAdapt } from "./util";
 const Radar = require("paths-js/radar");
 
@@ -86,7 +86,7 @@ export default class RadarChart extends Component {
     const self = this;
     const colors = styleSvg({}, self.props.options);
     const colorsFill = self.props.options.fill;
-    const curves = chart.curves.map(function (c, i) {
+    const curves = chart.curves.map(function(c, i) {
       const color = colorsFill instanceof Array ? colorsFill[i] : colorsFill;
       return (
         <Path
@@ -101,26 +101,24 @@ export default class RadarChart extends Component {
     const length = chart.rings.length;
     const radiusSection = x / length;
 
-    const rings = []
+    const rings = [];
     for (let i = 1; i < length; i++) {
-      rings.push(<Circle
-        key={"rings" + i}
-        cx={center[0]}
-        cy={center[1]}
-        r={radiusSection * i}
-        stroke={options.stroke}
-        strokeWidth={options.label.circleStrokeWidth}
-        fill={'transparent'}
-      />)
+      rings.push(
+        <Circle
+          key={"rings" + i}
+          cx={center[0]}
+          cy={center[1]}
+          r={radiusSection * i}
+          stroke={options.stroke}
+          strokeWidth={options.label.circleStrokeWidth}
+          fill={"transparent"}
+        />
+      );
     }
 
     const textStyle = fontAdapt(options.label);
 
-    const labels = chart.rings[length - 1].path.points().map(function (p, i) {
-      function onLabelPress() {
-        textStyle.onLabelPress(keys[i], keys_value[`${keys[i]}`]);
-      }
-
+    const labels = chart.rings[length - 1].path.points().map(function(p, i) {
       return (
         <G key={"label" + i}>
           <Line
@@ -136,9 +134,21 @@ export default class RadarChart extends Component {
               cx={p[0]}
               cy={p[1] - textStyle.fontSize / 3}
               r={textStyle.fontSize}
-              stroke={options.label.circleBorderColor}
-              strokeWidth={options.label.circleStrokeWidth}
-              fill={options.label.circleFillColor}
+              stroke={
+                options.label.activeLabel === keys[i]
+                  ? options.label.activeCircleBorderColor
+                  : options.label.circleBorderColor
+              }
+              strokeWidth={
+                options.label.activeLabel === keys[i]
+                  ? options.label.circleStrokeWidth * 2
+                  : options.label.circleStrokeWidth
+              }
+              fill={
+                options.label.activeLabel === keys[i]
+                  ? options.label.activeCircleFillColor
+                  : options.label.circleFillColor
+              }
             />
           )}
           <Text
@@ -147,7 +157,6 @@ export default class RadarChart extends Component {
             fontWeight={textStyle.fontWeight}
             fontStyle={textStyle.fontStyle}
             fill={textStyle.fill}
-            onPress={onLabelPress}
             textAnchor="middle"
             x={p[0]}
             y={p[1]}
@@ -158,6 +167,27 @@ export default class RadarChart extends Component {
       );
     });
 
+    const touchableBoxes = chart.rings[length - 1].path
+      .points()
+      .map(function(p, i) {
+        function onLabelPress() {
+          textStyle.onLabelPress(keys[i], keys_value[`${keys[i]}`]);
+        }
+
+        return (
+          <TouchableOpacity
+            style={{
+              width: textStyle.fontSize * 3,
+              height: textStyle.fontSize * 3,
+              position: "absolute",
+              top: p[1] - textStyle.fontSize * 2,
+              left: p[0] - (textStyle.fontSize * 3) / 2
+            }}
+            onPress={onLabelPress}
+          />
+        );
+      });
+
     return (
       <Svg width={options.width} height={options.height}>
         <G x={options.margin.left} y={options.margin.top}>
@@ -167,6 +197,7 @@ export default class RadarChart extends Component {
           </G>
           {labels}
         </G>
+        <View style={{ flex: 1 }}>{touchableBoxes}</View>
       </Svg>
     );
   }
