@@ -179,6 +179,7 @@ export default class RadarChart extends Component {
               left: p[0] - (textStyle.fontSize * 3) / 2
             }}
             onPress={onLabelPress}
+            key={i}
           />
         );
       });
