@@ -128,7 +128,7 @@ export default class RadarChart extends Component {
             <Circle
               cx={p[0]}
               cy={p[1] - textStyle.fontSize / 3}
-              r={textStyle.fontSize}
+              r={textStyle.fontSize * 2}
               stroke={
                 options.label.activeLabel === keys[i]
                   ? options.label.activeCircleBorderColor
@@ -179,7 +179,6 @@ export default class RadarChart extends Component {
               left: p[0] - (textStyle.fontSize * 3) / 2
             }}
             onPress={onLabelPress}
-            key={i}
           />
         );
       });
