@@ -176,24 +176,29 @@ export default class RadarChart extends Component {
               height: textStyle.fontSize * 3,
               position: "absolute",
               top: p[1] - textStyle.fontSize * 2,
-              left: p[0] - (textStyle.fontSize * 3) / 2
+              left: p[0] - (textStyle.fontSize * 3) / 2,
             }}
             onPress={onLabelPress}
+            hitSlop={{top: 10, left: 10, right: 10, bottom: 10}}
+            key={i}
           />
         );
       });
 
     return (
-      <Svg width={options.width} height={options.height}>
-        <G x={options.margin.left} y={options.margin.top}>
-          <G x={options.margin.left * -1} y={options.margin.top * -1}>
-            {rings}
-            {curves}
+      <View>
+        <Svg width={options.width} height={options.height}>
+          <G x={options.margin.left} y={options.margin.top}>
+            <G x={options.margin.left * -1} y={options.margin.top * -1}>
+              {rings}
+              {curves}
+            </G>
+            {labels}
           </G>
-          {labels}
-        </G>
-        <View style={{ flex: 1 }}>{touchableBoxes}</View>
-      </Svg>
+
+        </Svg>
+        <View style={{flex: 1, position: 'absolute'}}>{touchableBoxes}</View>
+      </View>
     );
   }
 }
